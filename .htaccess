@@ -1,0 +1,39 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_URI} ^system.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+    RewriteCond %{REQUEST_URI} ^application.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+    RewriteCond %{REQUEST_URI} ^assets.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php/$1 [L]
+
+    #Disable Directory Listing
+    # Options -Indexes
+
+    # Header set X-XSS-Protection "1; mode=block"
+	# Header set X-Frame-Options "SAMEORIGIN"
+	# Header set X-Content-Type-Options "nosniff"
+    
+	# SSL /HTTPS
+    # Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
+
+	# Header set Content-Security-Policy ...
+    # Header set X-Content-Security-Policy "allow 'self';"
+	# Header set Referrer-Policy "same-origin"
+	# Header set Feature-Policy "geolocation 'self'; vibrate 'none'"
+
+    #Premium Information System 
+    #Developed by Arniuz Global Asia
+    #Sign of the owner
+    #Fitra Arrafiq
+    #fitraarrafiq@gmail.com
+    #official@arniz.com
+    
+</IfModule>
