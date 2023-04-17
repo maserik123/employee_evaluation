@@ -19,6 +19,7 @@ class Model_matrix_calculation extends CI_Model
         return $this->db->get()->result();
     }
 
+
     function getMaxMin()
     {
         $query = $this->db->query('SELECT MAX(VALUE) AS max_val, MIN(VALUE) AS min_val FROM calc_criteria_employee GROUP BY criteria_id')->result();

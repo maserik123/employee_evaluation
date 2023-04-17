@@ -718,6 +718,7 @@ class Administrator extends CI_Controller
                 $view['getCriteria'] = $this->Model_criteria->getData();
                 $view['getCriteriaJoin'] = $this->Model_matrix_calculation->getJoinData();
                 $view['getEmployee'] = $this->Model_employee->getData();
+
                 $this->load->view('index', $view);
             } else if ($param == 'insert') {
                 $this->form_validation->set_rules("employee_id", "Employee", "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
@@ -751,6 +752,7 @@ class Administrator extends CI_Controller
                 $new_csrf = array(
                     'token_hash' => $this->security->get_csrf_hash()
                 );
+
                 echo json_encode(array('data' => $data, 'csrf' => $new_csrf));
                 die;
             } else if ($param == 'update') {
@@ -819,17 +821,7 @@ class Administrator extends CI_Controller
                 $view['getEmployee'] = $this->Model_employee->getData();
                 $this->load->view('index', $view);
             } else if ($param == 'insertNormalization') {
-                // // $this->form_validation->set_rules("employee_id", "Employee", "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
-                // foreach ($criteria as $b) {
-                //     $this->form_validation->set_rules("value[" . $b->criteria_code . "]", "Value " . $b->criteria_code, "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
-                // }
-                // $this->form_validation->set_error_delimiters('<h6 id="text-error" style="color:red;" class="help-block help-block-error">*', '</h6>');
-                // if ($this->form_validation->run() == FALSE) {
-                //     $result = array('status' => 'error', 'msg' => 'All data are required!');
-                //     foreach ($_POST as $key => $value) {
-                //         $result['messages'][$key] = form_error($key);
-                //     }
-                // } else {
+
                 $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id');
                 foreach ($showData->result() as $baris) {
                     $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
@@ -853,14 +845,99 @@ class Administrator extends CI_Controller
                         $result['messages']     = '';
                         if ($querquery != 0) {
                             $this->Model_normalization->updateNormalization($baris->employee_id, $c->id, $data);
-                            $result                 = array('status' => 'warning', 'msg' => 'Success, Some data updated !');
+                            $result                 = array('status' => 'warning', 'msg' => 'Success, All data updated !');
                         } else {
                             $this->Model_normalization->addNormalization($data);
-                            $result                 = array('status' => 'success', 'msg' => 'Success !');
+                            $result                 = array('status' => 'success', 'msg' => ' Processed !');
                         }
                     }
                 }
-                // }
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+                echo json_encode(array('result' => $result, 'csrf' => $new_csrf));
+                die;
+            } else if ($param == 'insertWeightNormalization') {
+
+                $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id');
+                foreach ($showData->result() as $baris) {
+                    $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
+                    foreach ($criteria as $c) {
+                        $query_value = $this->db->query('select value from calc_criteria_employee where criteria_id = "' . $c->id . '" and employee_id="' . $baris->employee_id . '" group by criteria_id')->row();
+                        $weight = $this->db->query('select weight_value from weight where criteria_id = "' . $c->id . '" group by criteria_id')->row();
+                        $queryMax = $this->db->query('select max(value) as max_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row();
+                        $queryMin = $this->db->query('select min(value) as min_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row();
+                        $maxVal_value = ($queryMax->max_val - $query_value->value);
+                        $maxVal_minVal = ($queryMax->max_val - $queryMin->min_val);
+
+                        $divMaxVal_divMaxMinVal = '';
+                        if ($maxVal_minVal == 0) {
+                            $divMaxVal_divMaxMinVal = 'NaN';
+                        } else {
+                            $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
+                        }
+                        $data['employee_id'] = $baris->employee_id;
+                        $data['criteria_id'] = $c->id;
+                        $data['value'] = ($weight->weight_value * $divMaxVal_divMaxMinVal);
+                        $querquery = $this->db->query('select employee_id from calc_normalization where employee_id = "' . $baris->employee_id . '" and criteria_id ="' . $c->id . '"')->num_rows();
+                        $result['messages']     = '';
+                        if ($querquery != 0) {
+                            $this->Model_normalization->updateWeightNormalization($baris->employee_id, $c->id, $data);
+                            $result                 = array('status' => 'warning', 'msg' => 'Success, Some data updated !');
+                        } else {
+                            $this->Model_normalization->addWeightNormalization($data);
+                            $result                 = array('status' => 'success', 'msg' => ' Processed !');
+                        }
+                    }
+                }
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+                echo json_encode(array('result' => $result, 'csrf' => $new_csrf));
+                die;
+            } else if ($param == 'insertSum') {
+
+                $showData = $this->db->query('SELECT a.employee_id, b.e_name, SUM(a.VALUE) AS sum_val FROM calc_weight_normalization a 
+                inner join employee b on b.id = a.employee_id 
+                GROUP BY employee_id');
+                foreach ($showData->result() as $baris) {
+
+                    $data['employee_id'] = $baris->employee_id;
+                    $data['value'] = $baris->sum_val;
+                    $querquery = $this->db->query('select employee_id from calc_total_weight_normalization where employee_id = "' . $baris->employee_id . '"')->num_rows();
+                    $result['messages']     = '';
+                    if ($querquery != 0) {
+                        $this->Model_normalization->updateSum($baris->employee_id,  $data);
+                        $result                 = array('status' => 'warning', 'msg' => 'Success, All data updated !');
+                    } else {
+                        $this->Model_normalization->addSum($data);
+                        $result                 = array('status' => 'success', 'msg' => ' Processed !');
+                    }
+                }
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+                echo json_encode(array('result' => $result, 'csrf' => $new_csrf));
+                die;
+            } else if ($param == 'insertMax') {
+
+                $showData = $this->db->query('SELECT  a.employee_id,  b.e_name, max(a.VALUE) AS max_val FROM calc_weight_normalization a 
+                inner join employee b on b.id = a.employee_id 
+                GROUP BY employee_id');
+                foreach ($showData->result() as $baris) {
+
+                    $data['employee_id'] = $baris->employee_id;
+                    $data['value'] = $baris->max_val;
+                    $querquery = $this->db->query('select employee_id from calc_max_weight_normalization where employee_id = "' . $baris->employee_id . '"')->num_rows();
+                    $result['messages']     = '';
+                    if ($querquery != 0) {
+                        $this->Model_normalization->updateMax($baris->employee_id,  $data);
+                        $result                 = array('status' => 'warning', 'msg' => 'Success, All data updated !');
+                    } else {
+                        $this->Model_normalization->addMax($data);
+                        $result                 = array('status' => 'success', 'msg' => ' Processed !');
+                    }
+                }
                 $new_csrf = array(
                     'token_hash' => $this->security->get_csrf_hash()
                 );

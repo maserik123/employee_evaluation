@@ -24,6 +24,24 @@ class Model_normalization extends CI_Model
         return $this->db->affected_rows() > 0 ? $this->db->insert_id() : FALSE;
     }
 
+    function addWeightNormalization($data)
+    {
+        $this->db->insert('calc_weight_normalization', $data);
+        return $this->db->affected_rows() > 0 ? $this->db->insert_id() : FALSE;
+    }
+
+    function addSum($data)
+    {
+        $this->db->insert('calc_total_weight_normalization', $data);
+        return $this->db->affected_rows() > 0 ? $this->db->insert_id() : FALSE;
+    }
+
+    function addMax($data)
+    {
+        $this->db->insert('calc_max_weight_normalization', $data);
+        return $this->db->affected_rows() > 0 ? $this->db->insert_id() : FALSE;
+    }
+
     function addData($data)
     {
         $this->db->insert('calc_normalization', $data);
@@ -53,6 +71,28 @@ class Model_normalization extends CI_Model
         $this->db->where('employee_id', $employee_id);
         $this->db->where('criteria_id', $criteria_id);
         $this->db->update('calc_normalization', $data);
+        return $this->db->affected_rows();
+    }
+
+    function updateWeightNormalization($employee_id, $criteria_id, $data)
+    {
+        $this->db->where('criteria_id', $criteria_id);
+        $this->db->where('employee_id', $employee_id);
+        $this->db->update('calc_weight_normalization', $data);
+        return $this->db->affected_rows();
+    }
+
+    function updateSum($employee_id, $data)
+    {
+        $this->db->where('employee_id', $employee_id);
+        $this->db->update('calc_total_weight_normalization', $data);
+        return $this->db->affected_rows();
+    }
+
+    function updateMax($employee_id, $data)
+    {
+        $this->db->where('employee_id', $employee_id);
+        $this->db->update('calc_max_weight_normalization', $data);
         return $this->db->affected_rows();
     }
 

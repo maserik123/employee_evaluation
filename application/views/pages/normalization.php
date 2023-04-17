@@ -217,7 +217,151 @@
         });
     }
 
-    function proceedNormalization(id) {
+    function proceedNormalization() {
+        // swal({
+        //     title: "Are you sure ?",
+        //     icon: "warning",
+        //     buttons: {
+        //         cancel: true,
+        //         confirm: true,
+        //     },
+        //     // html: true
+        // }).then((result) => {
+        //     if (result == true) {
+        $.ajax({
+            url: "<?php echo base_url('administrator/normalization/insertNormalization'); ?>",
+            type: "POST",
+            data: {
+                '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+            },
+            dataType: "JSON",
+            success: function(resp) {
+                data = resp.result;
+                setInterval(() => {
+                    // window.location = '';
+                }, 1500);
+                // updateTable();
+                return swal({
+                    html: true,
+                    timer: 1300,
+                    showConfirmButton: false,
+                    title: data['msg'],
+                    icon: data['status']
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('Error Processing Data');
+            }
+        });
+        //     } else {
+        //         return swal({
+        //             title: 'Transaksi telah dibatalkan !',
+        //             content: true,
+        //             timer: 1300,
+        //             icon: 'warning'
+        //         });
+        //     }
+        // });
+
+    }
+
+    function proceedSum() {
+        // swal({
+        //     title: "Are you sure ?",
+        //     icon: "warning",
+        //     buttons: {
+        //         cancel: true,
+        //         confirm: true,
+        //     },
+        //     // html: true
+        // }).then((result) => {
+        //     if (result == true) {
+        $.ajax({
+            url: "<?php echo base_url('administrator/normalization/insertSum'); ?>",
+            type: "POST",
+            data: {
+                '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+            },
+            dataType: "JSON",
+            success: function(resp) {
+                data = resp.result;
+                setInterval(() => {
+                    // window.location = '';
+                }, 1500);
+                // updateTable();
+                return swal({
+                    html: true,
+                    timer: 1300,
+                    showConfirmButton: false,
+                    title: data['msg'],
+                    icon: data['status']
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('Error Processing Data');
+            }
+        });
+        //     } else {
+        //         return swal({
+        //             title: 'Transaksi telah dibatalkan !',
+        //             content: true,
+        //             timer: 1300,
+        //             icon: 'warning'
+        //         });
+        //     }
+        // });
+
+    }
+
+    function proceedMax() {
+        // swal({
+        //     title: "Are you sure ?",
+        //     icon: "warning",
+        //     buttons: {
+        //         cancel: true,
+        //         confirm: true,
+        //     },
+        //     // html: true
+        // }).then((result) => {
+        //     if (result == true) {
+        $.ajax({
+            url: "<?php echo base_url('administrator/normalization/insertMax'); ?>",
+            type: "POST",
+            data: {
+                '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+            },
+            dataType: "JSON",
+            success: function(resp) {
+                data = resp.result;
+                setInterval(() => {
+                    // window.location = '';
+                }, 1500);
+                // updateTable();
+                return swal({
+                    html: true,
+                    timer: 1300,
+                    showConfirmButton: false,
+                    title: data['msg'],
+                    icon: data['status']
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('Error Processing Data');
+            }
+        });
+        //     } else {
+        //         return swal({
+        //             title: 'Transaksi telah dibatalkan !',
+        //             content: true,
+        //             timer: 1300,
+        //             icon: 'warning'
+        //         });
+        //     }
+        // });
+
+    }
+
+    function proceedWeightNormalization() {
         swal({
             title: "Are you sure ?",
             icon: "warning",
@@ -225,11 +369,14 @@
                 cancel: true,
                 confirm: true,
             },
-            html: true
+            // html: true
         }).then((result) => {
             if (result == true) {
+                proceedNormalization();
+                proceedSum();
+                proceedMax();
                 $.ajax({
-                    url: "<?php echo site_url('administrator/normalization/insertNormalization'); ?>/" + id,
+                    url: "<?php echo base_url('administrator/normalization/insertWeightNormalization'); ?>",
                     type: "POST",
                     data: {
                         '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
@@ -284,7 +431,7 @@
 
         <div class="card-header py-3">
             <div class="text-right">
-                <button class="btn btn-success btn-sm" onclick="proceedNormalization()" type="button"><i class="fa fa-check"></i> Process Normalization</button>
+                <button class="btn btn-success btn-sm" onclick="proceedWeightNormalization()" type="button"><i class="fa fa-check"></i> Process/Update All Data </button>
             </div>
             <h5 class="m-0 font-weight-bold text-primary">=Normalization Calculation Data=</h5>
         </div>
@@ -342,9 +489,9 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <div class="text-right">
-                <button class="btn btn-success btn-sm" onclick="add()" type="button"><i class="fa fa-check"></i> Process W & R Calculation</button>
-            </div>
+            <!-- <div class="text-right">
+                <button class="btn btn-warning btn-sm" onclick="proceedWeightNormalization()" type="button"><i class="fa fa-check"></i> Process W & R Calculation</button>
+            </div> -->
             <h5 class="m-0 font-weight-bold text-primary">=W & R Calculation Data=</h5>
         </div>
         <div class="card-body">
@@ -414,12 +561,14 @@
                             </thead>
                             <tbody>
                                 <?php $no = 0;
-                                $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id'); ?>
+                                $showData = $this->db->query('SELECT b.e_name, SUM(a.VALUE) AS sum_val FROM calc_weight_normalization a 
+                                inner join employee b on b.id = a.employee_id 
+                                GROUP BY employee_id'); ?>
                                 <?php foreach ($showData->result() as $baris) { ?>
                                     <tr>
                                         <td><?php echo ++$no; ?></td>
                                         <td><?php echo $baris->e_name; ?></td>
-                                        <td><?php echo 'test'; ?></td>
+                                        <td><?php echo $baris->sum_val; ?></td>
                                     </tr>
                                 <?php } ?>
 
@@ -449,12 +598,14 @@
                             </thead>
                             <tbody>
                                 <?php $no = 0;
-                                $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id'); ?>
+                                $showData = $this->db->query('SELECT b.e_name, max(a.VALUE) AS max_val FROM calc_weight_normalization a 
+                                inner join employee b on b.id = a.employee_id 
+                                GROUP BY employee_id'); ?>
                                 <?php foreach ($showData->result() as $baris) { ?>
                                     <tr>
                                         <td><?php echo ++$no; ?></td>
                                         <td><?php echo $baris->e_name; ?></td>
-                                        <td><?php echo 'test'; ?></td>
+                                        <td><?php echo $baris->max_val; ?></td>
                                     </tr>
                                 <?php } ?>
 

@@ -37,18 +37,17 @@
         save_method_role = 'update';
         $('#formMatrix')[0].reset();
         //Load data dari ajax
+
         $.ajax({
             url: "<?php echo base_url('administrator/matrixCalculation/getById/'); ?>" + id,
             type: "GET",
             dataType: "JSON",
             success: function(resp) {
                 data = resp.data
-                // $('[name="id"]').val(data.id);
-                console.log(data.employee_id);
                 $('[name="employee_id"]').val(data.employee_id);
                 <?php foreach ($getCriteria as $bb) { ?>
-                    console.log('value[<?php echo $bb->criteria_code ?>]');
-                    <?php $query = $this->db->query('select value from calc_criteria_employee where criteria_id ="' . $bb->id . '"')->result();
+                    console.log(id);
+                    <?php $query = $this->db->query('select value from calc_criteria_employee where criteria_id ="' . $bb->id . '" and employee_id=5')->result();
                     foreach ($query as $cc) { ?>
                         $('[name="criteria_id[<?php echo $bb->criteria_code; ?>]"]').html('tes');
                         $('[name="value[<?php echo $bb->criteria_code ?>]"]').val('<?php echo $cc->value; ?>');
