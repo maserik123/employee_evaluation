@@ -74,23 +74,44 @@
     </li>
 
 
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-calculator"></i>
+            <span>Calculation</span>
+        </a>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Master Data:</h6>
+                <a class="collapse-item <?php if (isset($active_matrixCalculation)) {
+                                            echo $active_matrixCalculation;
+                                        } else {
+                                        } ?>" href="<?php echo base_url('administrator/matrixCalculation') ?>">Matrix </a>
+                <a class="collapse-item <?php if (isset($active_normalization)) {
+                                            echo $active_normalization;
+                                        } else {
+                                        } ?>" href="<?php echo base_url('administrator/normalization') ?>"> Calculation</a>
+
+            </div>
+        </div>
+    </li>
+
     <!-- Nav Item - Charts -->
     <li class="nav-item <?php if (isset($active_matrixCalculation)) {
                             echo $active_matrixCalculation;
                         } else {
                         } ?>">
         <a class="nav-link" href="<?php echo base_url('administrator/matrixCalculation') ?>">
-            <i class="fas fa-fw fa-calculator"></i>
-            <span>Matrix Calculation</span></a>
+            <i class="fas fa-fw fa-check-double"></i>
+            <span>Results</span></a>
     </li>
-    <li class="nav-item <?php if (isset($active_calculation)) {
-                            echo $active_calculation;
-                        } else {
-                        } ?>">
+    <!-- <li class="nav-item <?php if (isset($active_calculation)) {
+                                    echo $active_calculation;
+                                } else {
+                                } ?>">
         <a class="nav-link" href="charts.html">
             <i class="fas fa-fw fa-calculator"></i>
             <span>Normalization Calculation</span></a>
-    </li>
+    </li> -->
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">

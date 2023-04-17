@@ -796,6 +796,126 @@ class Administrator extends CI_Controller
             }
         }
     }
+
+
+    function normalization($param = '', $id = '')
+    {
+        $userOnById = $this->Model_user_login->getOnlineUserById($this->session->userdata('id'));
+        $temp = $this->Model_user_login->getuserById($this->session->userdata('id'));
+        $criteria = $this->Model_criteria->getData();
+
+        if (!$this->session->userdata('loggedIn')) {
+            $this->session->set_flashdata('result_login', 'Silahkan Log in untuk mengakses sistem !');
+            redirect('/auth/');
+        } else {
+            #code..
+            if (empty($param)) {
+                $view['title'] = 'Normalization';
+                $view['pageName'] = 'normalization';
+                $view['active_normalization'] = 'active';
+                $view['getMaxMin'] = $this->Model_matrix_calculation->getMaxMin();
+                $view['getCriteria'] = $this->Model_criteria->getData();
+                $view['getCriteriaJoin'] = $this->Model_matrix_calculation->getJoinData();
+                $view['getEmployee'] = $this->Model_employee->getData();
+                $this->load->view('index', $view);
+            } else if ($param == 'insertNormalization') {
+                // // $this->form_validation->set_rules("employee_id", "Employee", "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
+                // foreach ($criteria as $b) {
+                //     $this->form_validation->set_rules("value[" . $b->criteria_code . "]", "Value " . $b->criteria_code, "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
+                // }
+                // $this->form_validation->set_error_delimiters('<h6 id="text-error" style="color:red;" class="help-block help-block-error">*', '</h6>');
+                // if ($this->form_validation->run() == FALSE) {
+                //     $result = array('status' => 'error', 'msg' => 'All data are required!');
+                //     foreach ($_POST as $key => $value) {
+                //         $result['messages'][$key] = form_error($key);
+                //     }
+                // } else {
+                $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id');
+                foreach ($showData->result() as $baris) {
+                    $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
+                    foreach ($criteria as $c) {
+                        $query_value = $this->db->query('select value from calc_criteria_employee where criteria_id = "' . $c->id . '" and employee_id="' . $baris->employee_id . '" group by criteria_id')->row();
+                        $queryMax = $this->db->query('select max(value) as max_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row();
+                        $queryMin = $this->db->query('select min(value) as min_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row();
+                        $maxVal_value = ($queryMax->max_val - $query_value->value);
+                        $maxVal_minVal = ($queryMax->max_val - $queryMin->min_val);
+
+                        $divMaxVal_divMaxMinVal = '';
+                        if ($maxVal_minVal == 0) {
+                            $divMaxVal_divMaxMinVal = 'NaN';
+                        } else {
+                            $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
+                        }
+                        $data['employee_id'] = $baris->employee_id;
+                        $data['criteria_id'] = $c->id;
+                        $data['value'] = $divMaxVal_divMaxMinVal;
+                        $querquery = $this->db->query('select employee_id from calc_normalization where employee_id = "' . $baris->employee_id . '" and criteria_id ="' . $c->id . '"')->num_rows();
+                        $result['messages']     = '';
+                        if ($querquery != 0) {
+                            $this->Model_normalization->updateNormalization($baris->employee_id, $c->id, $data);
+                            $result                 = array('status' => 'warning', 'msg' => 'Success, Some data updated !');
+                        } else {
+                            $this->Model_normalization->addNormalization($data);
+                            $result                 = array('status' => 'success', 'msg' => 'Success !');
+                        }
+                    }
+                }
+                // }
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+                echo json_encode(array('result' => $result, 'csrf' => $new_csrf));
+                die;
+            } else if ($param == 'getById') {
+                $data = $this->Model_matrix_calculation->getById($id);
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+                echo json_encode(array('data' => $data, 'csrf' => $new_csrf));
+                die;
+            } else if ($param == 'update') {
+                $this->form_validation->set_rules("employee_id", "Employee", "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
+                foreach ($criteria as $b) {
+                    $this->form_validation->set_rules("value[" . $b->criteria_code . "]", "Value " . $b->criteria_code, "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
+                }
+                $this->form_validation->set_error_delimiters('<h6 id="text-error" class="help-block help-block-error">*', '</h6>');
+
+                if ($this->form_validation->run() == FALSE) {
+                    $result = array('status' => 'error', 'msg' => 'Data is not correct !');
+                    foreach ($_POST as $key => $value) {
+                        $result['messages'][$key] = form_error($key);
+                    }
+                } else {
+                    foreach ($criteria as $bar) {
+                        $employee_id = $this->input->post('employee_id');
+                        $criteria_id     = htmlspecialchars($this->input->post('criteria_id[' . $bar->criteria_code . ']'));
+                        $data['value']     = htmlspecialchars($this->input->post('value[' . $bar->criteria_code . ']'));
+                        $result['messages']     = '';
+                        $this->Model_matrix_calculation->update($employee_id, $criteria_id, $data);
+                        $result                 = array('status' => 'success', 'msg' => 'Success !');
+                    }
+                }
+
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+                echo json_encode(array('result' => $result, 'csrf' => $new_csrf));
+                die;
+            } else if ($param == 'delete') {
+                $decrypt_id = decrypt($id);
+                $this->Model_matrix_calculation->delete($id);
+                echo json_encode(array("status" => 'success', 'msg' => 'Delete Success !'));
+                // $cek_id = $this->B_mou_model->get_by_jenis_id($decrypt_id);
+                // if (!$cek_id) {
+
+                // $this->B_user_log_model->addLog(userLog('Hapus Data', $this->session->userdata('first_name') . ' Melakukan hapus data Jenis Kerja Sama yang memiliki id = ' . $decrypt_id, $this->session->userdata('id')));
+
+                // } else {
+                //     echo json_encode(array("status" => 'error', 'msg' => "Can not delete this item, It's being used !"));
+                // }
+            }
+        }
+    }
 }
 
 /* End of file Administrator.php */

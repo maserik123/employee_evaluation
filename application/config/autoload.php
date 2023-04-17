@@ -144,5 +144,6 @@ $autoload['model'] = array(
     'Model_criteria',
     'Model_employee',
     'Model_weight',
-    'Model_matrix_calculation'
+    'Model_matrix_calculation',
+    'Model_normalization'
 );

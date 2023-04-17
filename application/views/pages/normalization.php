@@ -4,7 +4,19 @@
     }
 
     $(document).ready(function() {
-        table = $('#dataTable').DataTable({
+        table = $('#dataTable1').DataTable({
+
+        });
+    });
+
+    $(document).ready(function() {
+        table = $('#dataTable2').DataTable({
+
+        });
+    });
+
+    $(document).ready(function() {
+        table = $('#dataTable3').DataTable({
 
         });
     });
@@ -204,6 +216,54 @@
             }
         });
     }
+
+    function proceedNormalization(id) {
+        swal({
+            title: "Are you sure ?",
+            icon: "warning",
+            buttons: {
+                cancel: true,
+                confirm: true,
+            },
+            html: true
+        }).then((result) => {
+            if (result == true) {
+                $.ajax({
+                    url: "<?php echo site_url('administrator/normalization/insertNormalization'); ?>/" + id,
+                    type: "POST",
+                    data: {
+                        '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+                    },
+                    dataType: "JSON",
+                    success: function(resp) {
+                        data = resp.result;
+                        setInterval(() => {
+                            window.location = '';
+                        }, 1500);
+                        // updateTable();
+                        return swal({
+                            html: true,
+                            timer: 1300,
+                            showConfirmButton: false,
+                            title: data['msg'],
+                            icon: data['status']
+                        });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('Error Processing Data');
+                    }
+                });
+            } else {
+                return swal({
+                    title: 'Transaksi telah dibatalkan !',
+                    content: true,
+                    timer: 1300,
+                    icon: 'warning'
+                });
+            }
+        });
+
+    }
 </script>
 <style>
     .table-wrapper {
@@ -216,69 +276,29 @@
 <div class="container-fluid">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800">Matrix Calculation</h1>
 
 
     <!-- Data  -->
     <div class="card shadow mb-4">
+        <!-- <form action="" method="post"> -->
+
         <div class="card-header py-3">
-            <h5 class="m-0 font-weight-bold text-primary">=Matrix Calculation Data=</h5>
-            <div class="text-left card-header" style="background-color:darkgrey;color:white">
-                <small>
-                    Notes : *
-                    <br><br>
-                    Data berikut merupakan perhitungan matrix untuk mendapatkan hasil komparasi nilai berdasarkan kriteria dan nilai bobot yang di berikan.
-                    <br> Nilai bobot dari matrix memiliki batas bawah dan batas atas.
-                    <br> Batas bawah dari nilai adalah 1 dan batas atas adalah memiliki nilai 5.
-                    <br> Berikut detailnya :
-                    <br> Nilai 1 = Sangat Buruk
-                    <br> Nilai 2 = Buruk
-                    <br> Nilai 3 = Cukup
-                    <br> Nilai 4 = Baik
-                    <br> Nilai 5 = Sangat Baik
-                    <br>
-                    <br>
-                    Data Nilai ini dapat berubah sesuai dengan kebijakan yang berlaku pada perusahaan.
-
-                </small>
-
-            </div>
-            <br>
             <div class="text-right">
-                <button class="btn btn-success btn-xs" onclick="add()" type="button"><i class="fa fa-plus"></i> Add Data</button>
+                <button class="btn btn-success btn-sm" onclick="proceedNormalization()" type="button"><i class="fa fa-check"></i> Process Normalization</button>
             </div>
+            <h5 class="m-0 font-weight-bold text-primary">=Normalization Calculation Data=</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered weightData" style="font-size:13px" id="dataTable" width="100%">
                     <thead>
-
-                        <tr>
-                            <th colspan="2" style="background-color: cyan;font-color:black">Maximum Value</th>
-                            <?php foreach ($getMaxMin as $row) { ?>
-                                <th style="background-color: cyan;font-color:black"><?php echo $row->max_val; ?></th>
-                            <?php } ?>
-                            <th style="font-color:black;text-align:left;background-color:powderblue"><em class="fa fa-list    "></em>
-                            </th>
-                        </tr>
-                        <tr>
-                            <th colspan="2" style="background-color:red;color:black;">Minimum Value</th>
-                            <?php foreach ($getMaxMin as $row) { ?>
-                                <th style="background-color:red;color:black;"><?php echo $row->min_val; ?></th>
-                            <?php } ?>
-                            <th style="background-color:red;text-align:left;color:black;"><em class="fa fa-list   "></em></th>
-                        </tr>
-
                         <tr>
                             <th>#</th>
                             <th>Employee Name</th>
                             <?php foreach ($getCriteria as $row) { ?>
                                 <th><?php echo $row->criteria_code; ?></th>
                             <?php } ?>
-                            <th>
-                                <em class="fa fa-cogs"></em>
-                                Tools
-                            </th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -288,17 +308,83 @@
                             <tr>
                                 <td><?php echo ++$no; ?></td>
                                 <td><?php echo $baris->e_name; ?></td>
-                                <?php $getValue = $this->db->query('select value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
-                                foreach ($getValue->result() as $c) { ?>
-                                    <td><?php echo $c->value; ?></td>
+                                <?php $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
+                                foreach ($getCriteria as $c) { ?>
+                                    <!-- <input type='text' id="employee_id" name="employee_id" value="<?php echo $baris->employee_id; ?>"> -->
+                                    <!-- <input type='text' id="criteria_id" name="criteria_id" value="<?php echo $c->id; ?>"> -->
+                                    <?php $query_value = $this->db->query('select value from calc_criteria_employee where criteria_id = "' . $c->id . '" and employee_id="' . $baris->employee_id . '" group by criteria_id')->row() ?>
+                                    <?php $queryMax = $this->db->query('select max(value) as max_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
+                                    <?php $queryMin = $this->db->query('select min(value) as min_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
+                                    <?php $maxVal_value = ($queryMax->max_val - $query_value->value); ?>
+                                    <?php $maxVal_minVal = ($queryMax->max_val - $queryMin->min_val); ?>
+                                    <?php
+                                    $divMaxVal_divMaxMinVal = '';
+                                    if ($maxVal_minVal == 0) {
+                                        $divMaxVal_divMaxMinVal = 'NaN';
+                                    } else {
+                                        $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
+                                    } ?>
+                                    <td><?php echo $divMaxVal_divMaxMinVal; ?></td>
+                                    <!-- <input type='text' id="value" name="value" value="<?php echo $divMaxVal_divMaxMinVal; ?>"> -->
+
                                 <?php } ?>
-                                <td><button class="btn btn-primary btn-sm" type="button" onclick="updateMatrix(<?php echo $baris->employee_id; ?>)">
-                                        <em class="fa fa-edit"></em>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" type="button" onclick="deleteMatrix(<?php echo $baris->employee_id; ?>)">
-                                        <em class="fa fa-trash"></em>
-                                    </button>
-                                </td>
+
+                            </tr>
+                        <?php } ?>
+
+                    </tbody>
+                </table>
+
+                <!-- </form> -->
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="text-right">
+                <button class="btn btn-success btn-sm" onclick="add()" type="button"><i class="fa fa-check"></i> Process W & R Calculation</button>
+            </div>
+            <h5 class="m-0 font-weight-bold text-primary">=W & R Calculation Data=</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered weightData" style="font-size:13px" id="dataTable1" width="100%">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Employee Name</th>
+                            <?php foreach ($getCriteria as $row) { ?>
+                                <th><?php echo $row->criteria_code; ?></th>
+                            <?php } ?>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no = 0;
+                        $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id'); ?>
+                        <?php foreach ($showData->result() as $baris) { ?>
+                            <tr>
+                                <td><?php echo ++$no; ?></td>
+                                <td><?php echo $baris->e_name; ?></td>
+                                <?php $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
+                                foreach ($getCriteria as $c) { ?>
+                                    <?php $weight = $this->db->query('select weight_value from weight where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
+                                    <?php $query_value = $this->db->query('select value from calc_criteria_employee where criteria_id = "' . $c->id . '" and employee_id="' . $baris->employee_id . '" group by criteria_id')->row() ?>
+                                    <?php $queryMax = $this->db->query('select max(value) as max_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
+                                    <?php $queryMin = $this->db->query('select min(value) as min_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
+                                    <?php $maxVal_value = ($queryMax->max_val - $query_value->value); ?>
+                                    <?php $maxVal_minVal = ($queryMax->max_val - $queryMin->min_val); ?>
+                                    <?php
+                                    $divMaxVal_divMaxMinVal = '';
+                                    if ($maxVal_minVal == 0) {
+                                        $divMaxVal_divMaxMinVal = 'NaN';
+                                    } else {
+                                        $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
+                                    } ?>
+                                    <td><?php echo ($weight->weight_value * $divMaxVal_divMaxMinVal); ?></td>
+                                <?php } ?>
+
                             </tr>
                         <?php } ?>
 
@@ -309,8 +395,78 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-2">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">=Total SUM Calculation Data=</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered weightData" style="font-size:13px" id="dataTable2" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Employee Name</th>
+                                    <th>Total Sum Result</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $no = 0;
+                                $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id'); ?>
+                                <?php foreach ($showData->result() as $baris) { ?>
+                                    <tr>
+                                        <td><?php echo ++$no; ?></td>
+                                        <td><?php echo $baris->e_name; ?></td>
+                                        <td><?php echo 'test'; ?></td>
+                                    </tr>
+                                <?php } ?>
 
 
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-2">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">=Total Max Calculation Data=</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered weightData" style="font-size:13px" id="dataTable3" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Employee Name</th>
+                                    <th>Total Sum Result</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $no = 0;
+                                $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id'); ?>
+                                <?php foreach ($showData->result() as $baris) { ?>
+                                    <tr>
+                                        <td><?php echo ++$no; ?></td>
+                                        <td><?php echo $baris->e_name; ?></td>
+                                        <td><?php echo 'test'; ?></td>
+                                    </tr>
+                                <?php } ?>
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 <!-- Modal User Role-->
