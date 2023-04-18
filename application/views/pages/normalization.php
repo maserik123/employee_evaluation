@@ -314,7 +314,7 @@
                     success: function(resp) {
                         data = resp.result;
                         setInterval(() => {
-                            // window.location = '';
+                            window.location = '';
                         }, 1500);
                         // updateTable();
                         return swal({
