@@ -41,10 +41,7 @@
                                             echo $active_user;
                                         } else {
                                         } ?>" href="<?php echo base_url('administrator/user') ?>">User Lists</a>
-                <a class="collapse-item <?php if (isset($active_log)) {
-                                            echo $active_log;
-                                        } else {
-                                        } ?>" href="cards.html">System Logs</a>
+
             </div>
         </div>
     </li>
