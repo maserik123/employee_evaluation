@@ -699,7 +699,7 @@ class Administrator extends CI_Controller
         }
     }
 
-    function matrixCalculation($param = '', $id = '')
+    function matrixCalculation($param = '', $id = '', $criteria_id = '')
     {
         $userOnById = $this->Model_user_login->getOnlineUserById($this->session->userdata('id'));
         $temp = $this->Model_user_login->getuserById($this->session->userdata('id'));
@@ -755,11 +755,17 @@ class Administrator extends CI_Controller
 
                 echo json_encode(array('data' => $data, 'csrf' => $new_csrf));
                 die;
+            } else if ($param == 'getByEmpIdCritId') {
+                $data = $this->Model_matrix_calculation->getByEmployeeIdCriteriaId($id, $criteria_id);
+                $new_csrf = array(
+                    'token_hash' => $this->security->get_csrf_hash()
+                );
+
+                echo json_encode(array('data' => $data, 'csrf' => $new_csrf));
+                die;
             } else if ($param == 'update') {
                 $this->form_validation->set_rules("employee_id", "Employee", "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
-                foreach ($criteria as $b) {
-                    $this->form_validation->set_rules("value[" . $b->criteria_code . "]", "Value " . $b->criteria_code, "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
-                }
+                $this->form_validation->set_rules("value", "Value ", "trim|required|xss_clean|alpha_numeric_spaces", array('required' => '{field} Cannot empty !', 'alpha_numeric_spaces' => '{field} must in number format/cannot decimal value. Ex 10'));
                 $this->form_validation->set_error_delimiters('<h6 id="text-error" class="help-block help-block-error">*', '</h6>');
 
                 if ($this->form_validation->run() == FALSE) {
@@ -768,14 +774,12 @@ class Administrator extends CI_Controller
                         $result['messages'][$key] = form_error($key);
                     }
                 } else {
-                    foreach ($criteria as $bar) {
-                        $employee_id = $this->input->post('employee_id');
-                        $criteria_id     = htmlspecialchars($this->input->post('criteria_id[' . $bar->criteria_code . ']'));
-                        $data['value']     = htmlspecialchars($this->input->post('value[' . $bar->criteria_code . ']'));
-                        $result['messages']     = '';
-                        $this->Model_matrix_calculation->update($employee_id, $criteria_id, $data);
-                        $result                 = array('status' => 'success', 'msg' => 'Success !');
-                    }
+                    $employee_id = $this->input->post('employee_id');
+                    $criteria_id     = htmlspecialchars($this->input->post('criteria_id'));
+                    $data['value']     = htmlspecialchars($this->input->post('value'));
+                    $result['messages']     = '';
+                    $this->Model_matrix_calculation->update($employee_id, $criteria_id, $data);
+                    $result                 = array('status' => 'success', 'msg' => 'Success !');
                 }
 
                 $new_csrf = array(

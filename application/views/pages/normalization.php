@@ -292,6 +292,7 @@
     function proceedWeightNormalization() {
         swal({
             title: "Are you sure ?",
+            text: 'This is will update all your calculation into database.',
             icon: "warning",
             buttons: {
                 cancel: true,

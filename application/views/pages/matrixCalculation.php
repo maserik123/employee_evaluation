@@ -33,27 +33,20 @@
     // Start Method Update
 
 
-    function updateMatrix(id) {
+    function updateMatrix(id, criteria_id) {
         save_method_role = 'update';
-        $('#formMatrix')[0].reset();
         //Load data dari ajax
 
         $.ajax({
-            url: "<?php echo base_url('administrator/matrixCalculation/getById/'); ?>" + id,
+            url: "<?php echo base_url('administrator/matrixCalculation/getByEmpIdCritId/'); ?>" + id + '/' + criteria_id,
             type: "GET",
             dataType: "JSON",
             success: function(resp) {
                 data = resp.data
                 $('[name="employee_id"]').val(data.employee_id);
-                <?php foreach ($getCriteria as $bb) { ?>
-                    console.log(id);
-                    <?php $query = $this->db->query('select value from calc_criteria_employee where criteria_id ="' . $bb->id . '" and employee_id=5')->result();
-                    foreach ($query as $cc) { ?>
-                        $('[name="criteria_id[<?php echo $bb->criteria_code; ?>]"]').html('tes');
-                        $('[name="value[<?php echo $bb->criteria_code ?>]"]').val('<?php echo $cc->value; ?>');
-                <?php }
-                } ?>
-                $('#modalMatrix').modal('show');
+                $('[name="criteria_id"]').val(data.criteria_id);
+                $('[name="value"]').val(data.value);
+                $('#modalUpdateMatrix').modal('show');
                 $('.modal-title').text('Edit Data Matrix ');
                 // console.log(data.user_role_id);
             },
@@ -123,12 +116,7 @@
 
     function save() {
         var url;
-        if (save_method_role == 'add') {
-            url = '<?php echo base_url() ?>administrator/matrixCalculation/insert';
-        } else {
-            url = '<?php echo base_url() ?>administrator/matrixCalculation/update';
-        }
-
+        url = '<?php echo base_url() ?>administrator/matrixCalculation/insert';
         <?php foreach ($getCriteria as $baris) { ?>
             var valCriteria = document.getElementById("value[<?php echo $baris->criteria_code; ?>]").value;
             if (!((valCriteria >= 1) && (valCriteria <= 5))) {
@@ -163,6 +151,77 @@
                                 .find('#text-error')
                                 .remove();
                             $('#modalMatrix').modal('hide');
+                            setInterval(() => {
+                                window.location = '';
+                            }, 1500);
+                        } else {
+                            $.each(data['messages'], function(key, value) {
+                                var element = $('#' + key);
+                                element
+                                    .closest('div.form-group')
+                                    .removeClass('has-error')
+                                    .addClass(
+                                        value.length > 0 ?
+                                        'has-error' :
+                                        'has-success'
+                                    )
+                                    .find('#text-error')
+                                    .remove();
+                                element.after(value);
+                            });
+                        }
+                        return swal({
+                            html: true,
+                            timer: 1300,
+                            title: data['msg'],
+                            icon: data['status']
+                        });
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('Error adding/updating data');
+                    }
+                });
+            } else {
+                return swal({
+                    title: 'Transaksi telah dibatalkan !',
+                    content: true,
+                    timer: 1300,
+                    icon: 'warning'
+                });
+            }
+        });
+    }
+
+    function saveUpdate() {
+        var url;
+        url = '<?php echo base_url() ?>administrator/matrixCalculation/update';
+
+        swal({
+            title: "Are you sure ?",
+            icon: "warning",
+            buttons: {
+                cancel: true,
+                confirm: true,
+            },
+            html: true
+        }).then((result) => {
+            if (result == true) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: $('#formUpdateMatrix').serialize(),
+                    dataType: "JSON",
+                    success: function(resp) {
+                        data = resp.result;
+                        // csrf_hash = resp.csrf['token']
+                        // $('#add-form input[name=' + csrf_name + ']').val(csrf_hash);
+                        if (data['status'] == 'success') {
+                            $('.form-group')
+                                .removeClass('has-error')
+                                .removeClass('has-success')
+                                .find('#text-error')
+                                .remove();
+                            $('#modalUpdateMatrix').modal('hide');
                             setInterval(() => {
                                 window.location = '';
                             }, 1500);
@@ -287,13 +346,15 @@
                             <tr>
                                 <td><?php echo ++$no; ?></td>
                                 <td><?php echo $baris->e_name; ?></td>
-                                <?php $getValue = $this->db->query('select value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
+                                <?php $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
                                 foreach ($getValue->result() as $c) { ?>
-                                    <td><?php echo $c->value; ?></td>
+                                    <td><?php echo $c->value; ?>
+                                        <button class="btn btn-primary btn-sm" type="button" style="font-size:8px" onclick="updateMatrix(<?php echo $baris->employee_id; ?>,<?php echo $c->criteria_id; ?>)">
+                                            <em class="fa fa-edit"></em>
+                                        </button>
+                                    </td>
                                 <?php } ?>
-                                <td><button class="btn btn-primary btn-sm" type="button" onclick="updateMatrix(<?php echo $baris->employee_id; ?>)">
-                                        <em class="fa fa-edit"></em>
-                                    </button>
+                                <td>
                                     <button class="btn btn-danger btn-sm" type="button" onclick="deleteMatrix(<?php echo $baris->employee_id; ?>)">
                                         <em class="fa fa-trash"></em>
                                     </button>
@@ -352,6 +413,38 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="save()">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUpdateMatrix" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="form-horizontal" id="formUpdateMatrix" action="" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name='employee_id' value="" id='employee_id'>
+                    <input type="hidden" name='criteria_id' value="" id='criteria_id'>
+
+                    <div class="item form-group">
+                        <label class="control-label col-md-12 col-sm-3 col-xs-12">Value<span class="required">*</span>
+                        </label>
+                        <div class="col-md-12 col-sm-9 col-xs-12">
+                            <input type="number" id="value" name="value" required="required" placeholder="" class="form-control ">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUpdate()">Save changes</button>
                 </div>
             </form>
         </div>

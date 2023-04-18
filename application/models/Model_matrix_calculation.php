@@ -46,6 +46,16 @@ class Model_matrix_calculation extends CI_Model
         return $this->db->get()->row();
     }
 
+    public function getByEmployeeIdCriteriaId($emp_id, $crit_id)
+    {
+        $this->db->select('*');
+        $this->db->from('calc_criteria_employee a');
+        $this->db->join('employee b', 'b.id=a.employee_id', 'left');
+        $this->db->where('employee_id', $emp_id);
+        $this->db->where('criteria_id', $crit_id);
+        return $this->db->get()->row();
+    }
+
     public function getDataById($id)
     {
         $query = $this->db->query('select * from calc_criteria_employee where employee_id =' . $id);
