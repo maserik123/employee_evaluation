@@ -100,7 +100,7 @@
                             echo $active_matrixCalculation;
                         } else {
                         } ?>">
-        <a class="nav-link" href="<?php echo base_url('administrator/matrixCalculation') ?>">
+        <a class="nav-link" href="<?php echo base_url('administrator/result') ?>">
             <i class="fas fa-fw fa-check-double"></i>
             <span>Results</span></a>
     </li>

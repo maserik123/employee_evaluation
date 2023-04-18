@@ -218,16 +218,6 @@
     }
 
     function proceedNormalization() {
-        // swal({
-        //     title: "Are you sure ?",
-        //     icon: "warning",
-        //     buttons: {
-        //         cancel: true,
-        //         confirm: true,
-        //     },
-        //     // html: true
-        // }).then((result) => {
-        //     if (result == true) {
         $.ajax({
             url: "<?php echo base_url('administrator/normalization/insertNormalization'); ?>",
             type: "POST",
@@ -237,10 +227,6 @@
             dataType: "JSON",
             success: function(resp) {
                 data = resp.result;
-                setInterval(() => {
-                    // window.location = '';
-                }, 1500);
-                // updateTable();
                 return swal({
                     html: true,
                     timer: 1300,
@@ -253,29 +239,9 @@
                 alert('Error Processing Data');
             }
         });
-        //     } else {
-        //         return swal({
-        //             title: 'Transaksi telah dibatalkan !',
-        //             content: true,
-        //             timer: 1300,
-        //             icon: 'warning'
-        //         });
-        //     }
-        // });
-
     }
 
     function proceedSum() {
-        // swal({
-        //     title: "Are you sure ?",
-        //     icon: "warning",
-        //     buttons: {
-        //         cancel: true,
-        //         confirm: true,
-        //     },
-        //     // html: true
-        // }).then((result) => {
-        //     if (result == true) {
         $.ajax({
             url: "<?php echo base_url('administrator/normalization/insertSum'); ?>",
             type: "POST",
@@ -285,10 +251,6 @@
             dataType: "JSON",
             success: function(resp) {
                 data = resp.result;
-                setInterval(() => {
-                    // window.location = '';
-                }, 1500);
-                // updateTable();
                 return swal({
                     html: true,
                     timer: 1300,
@@ -301,29 +263,9 @@
                 alert('Error Processing Data');
             }
         });
-        //     } else {
-        //         return swal({
-        //             title: 'Transaksi telah dibatalkan !',
-        //             content: true,
-        //             timer: 1300,
-        //             icon: 'warning'
-        //         });
-        //     }
-        // });
-
     }
 
     function proceedMax() {
-        // swal({
-        //     title: "Are you sure ?",
-        //     icon: "warning",
-        //     buttons: {
-        //         cancel: true,
-        //         confirm: true,
-        //     },
-        //     // html: true
-        // }).then((result) => {
-        //     if (result == true) {
         $.ajax({
             url: "<?php echo base_url('administrator/normalization/insertMax'); ?>",
             type: "POST",
@@ -333,10 +275,6 @@
             dataType: "JSON",
             success: function(resp) {
                 data = resp.result;
-                setInterval(() => {
-                    // window.location = '';
-                }, 1500);
-                // updateTable();
                 return swal({
                     html: true,
                     timer: 1300,
@@ -349,16 +287,6 @@
                 alert('Error Processing Data');
             }
         });
-        //     } else {
-        //         return swal({
-        //             title: 'Transaksi telah dibatalkan !',
-        //             content: true,
-        //             timer: 1300,
-        //             icon: 'warning'
-        //         });
-        //     }
-        // });
-
     }
 
     function proceedWeightNormalization() {
@@ -385,7 +313,7 @@
                     success: function(resp) {
                         data = resp.result;
                         setInterval(() => {
-                            window.location = '';
+                            // window.location = '';
                         }, 1500);
                         // updateTable();
                         return swal({
