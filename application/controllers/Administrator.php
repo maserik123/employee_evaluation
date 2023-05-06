@@ -880,7 +880,7 @@ class Administrator extends CI_Controller
                         $data['employee_id'] = $baris->employee_id;
                         $data['criteria_id'] = $c->id;
                         $data['value'] = ($weight->weight_value * $divMaxVal_divMaxMinVal);
-                        $querquery = $this->db->query('select employee_id from calc_normalization where employee_id = "' . $baris->employee_id . '" and criteria_id ="' . $c->id . '"')->num_rows();
+                        $querquery = $this->db->query('select employee_id from calc_weight_normalization where employee_id = "' . $baris->employee_id . '" and criteria_id ="' . $c->id . '"')->num_rows();
                         if ($querquery != 0) {
                             $result['messages']     = '';
                             $this->Model_normalization->updateWeightNormalization($baris->employee_id, $c->id, $data);
@@ -907,7 +907,7 @@ class Administrator extends CI_Controller
                     $data['employee_id'] = $baris->employee_id;
                     $data['value'] = $baris->sum_val;
                     $querquery = $this->db->query('select employee_id from calc_total_weight_normalization where employee_id = "' . $baris->employee_id . '"')->num_rows();
-                    if ($querquery != 0) {
+                    if (!empty($querquery)) {
                         $this->Model_normalization->updateSum($baris->employee_id,  $data);
                     } else {
                         $this->Model_normalization->addSum($data);
@@ -928,7 +928,7 @@ class Administrator extends CI_Controller
                     $data['employee_id'] = $baris->employee_id;
                     $data['value'] = $baris->max_val;
                     $querquery = $this->db->query('select employee_id from calc_max_weight_normalization where employee_id = "' . $baris->employee_id . '"')->num_rows();
-                    if ($querquery != 0) {
+                    if (!empty($querquery)) {
                         $this->Model_normalization->updateMax($baris->employee_id,  $data);
                     } else {
                         $this->Model_normalization->addMax($data);
