@@ -93,10 +93,7 @@
     </li>
 
     <!-- Nav Item - Charts -->
-    <li class="nav-item <?php if (isset($active_matrixCalculation)) {
-                            echo $active_matrixCalculation;
-                        } else {
-                        } ?>">
+    <li class="nav-item ">
         <a class="nav-link" href="<?php echo base_url('administrator/result') ?>">
             <i class="fas fa-fw fa-check-double"></i>
             <span>Results</span></a>

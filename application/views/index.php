@@ -26,39 +26,46 @@
     <script type="text/javascript">
         function logout() {
             swal({
-                title: "Do you want to logout ?",
+                title: "Apakah anda sudah yakin ?",
                 icon: "warning",
-                // imageUrl: "<?php echo base_url() ?>assets/images/user.png",
-                text: "Click yes if you have been finished all the transactions in this system ",
-                showCancelButton: true,
-                showLoaderOnConfirm: true,
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            }).then(function() {
-                $.ajax({
-                    url: "<?php echo site_url('auth/logout'); ?>",
-                    type: "POST",
-                    dataType: "JSON",
-                    data: {
-                        '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
-                    },
-                    success: function(data) {
-                        $url = '<?php echo base_url('/auth/') ?>';
-                        setTimeout(() => {
-                            $(location).attr('href', $url)
-                        }, 1400);
-                        return swal({
-                            html: true,
-                            timer: 1300,
-                            showConfirmButton: false,
-                            title: data['msg'],
-                            icon: data['status']
-                        });
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        alert('Error to Log out, check the connection or configuration !');
-                    }
-                });
+                buttons: {
+                    cancel: true,
+                    confirm: true,
+                },
+            }).then((result) => {
+                if (result == true) {
+                    $.ajax({
+                        url: "<?php echo site_url('auth/logout'); ?>",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {
+                            '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+                        },
+                        success: function(data) {
+                            $url = '<?php echo base_url('/auth/') ?>';
+                            setTimeout(() => {
+                                $(location).attr('href', $url)
+                            }, 1400);
+                            return swal({
+                                html: true,
+                                timer: 1300,
+                                showConfirmButton: false,
+                                title: data['msg'],
+                                icon: data['status']
+                            });
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            alert('Error to Log out, check the connection or configuration !');
+                        }
+                    });
+                } else {
+                    return swal({
+                        title: 'Transaksi telah dibatalkan !',
+                        content: true,
+                        timer: 1300,
+                        icon: 'warning'
+                    });
+                }
             });
         }
     </script>

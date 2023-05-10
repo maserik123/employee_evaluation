@@ -25,6 +25,15 @@ class Administrator extends CI_Controller
             $view['pageName'] = 'home';
             $view['active_dashboard'] = 'active';
 
+            $view['getListEmployee'] = $this->db->query('select 
+            b.id as e_id,
+            b.e_name, 
+            a.value as value_S, 
+            c.value as value_R
+            from calc_total_weight_normalization a 
+            inner join employee b on b.id = a.employee_id
+            inner join calc_max_weight_normalization c on c.employee_id = a.employee_id
+            order by value_S asc');
             $view['getListData'] = $this->Model_user->getListData();
 
             $this->load->view('index', $view);
@@ -364,7 +373,7 @@ class Administrator extends CI_Controller
                     $th3            = $row->e_phone;
                     $th4            = $row->e_address;
                     $th5            = $row->e_email;
-                    $th6            = '<center>' . get_btn_group1('updateEmployee("' . $id . '")', 'deleteEmployee("' . $id . '")') . '<button class="btn btn-primary btn-sm"> Set to User Login</button>' . '</center>';
+                    $th6            = '<center>' . get_btn_group1('updateEmployee("' . $id . '")', 'deleteEmployee("' . $id . '")');
                     $data[]         = gathered_data(array($th1, $th2, $th3, $th4, $th5, $th6));
                 }
                 $dt['data'] = $data;

@@ -87,14 +87,14 @@
 
     function deleteCriteria(id) {
         swal({
-            title: "Apakah Yakin Akan Dihapus?",
+            title: "Apakah anda sudah yakin ?",
             icon: "warning",
-            showCancelButton: true,
-            showLoaderOnConfirm: true,
-            confirmButtonText: "Ya",
-            closeOnConfirm: false
-        }).then(
-            function() {
+            buttons: {
+                cancel: true,
+                confirm: true,
+            },
+        }).then((result) => {
+            if (result == true) {
                 $.ajax({
                     url: "<?php echo site_url('administrator/criteria/delete'); ?>/" + id,
                     type: "POST",
@@ -116,8 +116,15 @@
                         alert('Error Deleting Data');
                     }
                 });
+            } else {
+                return swal({
+                    title: 'Transaksi telah dibatalkan !',
+                    content: true,
+                    timer: 1300,
+                    icon: 'warning'
+                });
             }
-        );
+        });
     }
     // End Method delete
 
