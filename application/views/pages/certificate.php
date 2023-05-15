@@ -34,11 +34,11 @@
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
                     <!-- Topbar Search -->
-                    <button class="btn btn-primary btn-sm" onclick="<?php echo base_url('administrator/result') ?>" type="button">
+                    <a class="btn btn-primary btn-sm" href="<?php echo base_url('administrator/result') ?>" type="button">
                         Back
-                    </button>
+                    </a>
                     <button class="btn btn-danger btn-sm" onclick="window.print()" type="button">
-                        Print
+                        Print / Save to PDF
                     </button>
 
                     <!-- Topbar Navbar -->

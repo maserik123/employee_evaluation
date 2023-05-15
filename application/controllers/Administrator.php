@@ -174,7 +174,11 @@ class Administrator extends CI_Controller
                 $th8    = '<div class="text-center">' . $row->phone_number . '</div>';
                 $th9    = '<div class="text-center">' . $row->username . '</div>';
                 $th10    = '<div class="text-center">' . $row->role . '</div>';
-                $th11    = '<div class="text-center">' . $row->block_status . '</div>';
+                if ($row->block_status == 0) {
+                    $th11    = '<div class="text-center btn btn-primary btn-sm">Unblocked</div>';
+                } else {
+                    $th11    = '<div class="text-center btn btn-danger btn-sm">Blocked</div>';
+                }
                 $th12   = '<div class="text-center" style="width:100px;">' . (get_btn_group1('update_user_login(' . $user_login_id . ')', 'delete_user_login(' . $user_login_id . ')')) . '</div>';
                 $data[] = gathered_data(array($th1, $th2, $th3, $th4, $th5, $th6, $th7, $th8, $th9, $th10, $th11, $th12));
             }
@@ -373,7 +377,11 @@ class Administrator extends CI_Controller
                     $th3            = $row->e_phone;
                     $th4            = $row->e_address;
                     $th5            = $row->e_email;
-                    $th6            = '<center>' . get_btn_group1('updateEmployee("' . $id . '")', 'deleteEmployee("' . $id . '")');
+                    if (($this->session->userdata('role') == 'sys_manager') || ($this->session->userdata('role') == 'admin')) {
+                        $th6            = '<center>' . get_btn_group1('updateEmployee("' . $id . '")', 'deleteEmployee("' . $id . '")');
+                    } else {
+                        $th6            = 'You do not have access for this tools !';
+                    }
                     $data[]         = gathered_data(array($th1, $th2, $th3, $th4, $th5, $th6));
                 }
                 $dt['data'] = $data;

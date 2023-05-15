@@ -227,7 +227,11 @@
         <div class="card-header py-3">
             <h5 class="m-0 font-weight-bold text-primary">=Employee Data=</h5>
             <div class="text-right">
-                <button class="btn btn-success btn-xs" onclick="add()" type="button"><i class="fa fa-plus"></i> Add Data</button>
+                <?php if (($this->session->userdata('role') == 'sys_manager') || ($this->session->userdata('role') == 'admin')) { ?>
+                    <button class="btn btn-success btn-xs" onclick="add()" type="button"><i class="fa fa-plus"></i> Add Data</button>
+                <?php } else { ?>
+                    <button class="btn btn-success btn-xs" onclick="alert('You do not have access !')" type="button"><i class="fa fa-plus"></i> Add Data</button>
+                <?php } ?>
             </div>
         </div>
         <div class="card-body">
