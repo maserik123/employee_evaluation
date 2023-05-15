@@ -289,7 +289,20 @@
         });
     }
 
+    function deleteAllCalculation() {
+        $.ajax({
+            url: "<?php echo base_url('administrator/normalization/deleteAllCalculation'); ?>",
+            type: "POST",
+            data: {
+                '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+            },
+            dataType: "JSON",
+
+        });
+    }
+
     function proceedWeightNormalization() {
+        deleteAllCalculation();
         swal({
             title: "Are you sure ?",
             text: 'This is will update all your calculation into database.',
@@ -301,9 +314,7 @@
             // html: true
         }).then((result) => {
             if (result == true) {
-                proceedNormalization();
-                proceedSum();
-                proceedMax();
+
                 $.ajax({
                     url: "<?php echo base_url('administrator/normalization/insertWeightNormalization'); ?>",
                     type: "POST",
@@ -317,6 +328,9 @@
                             window.location = '';
                         }, 1500);
                         // updateTable();
+                        proceedNormalization();
+                        proceedSum();
+                        proceedMax();
                         return swal({
                             html: true,
                             timer: 1300,
@@ -360,7 +374,9 @@
 
         <div class="card-header py-3">
             <div class="text-right">
-                <button class="btn btn-success btn-sm" onclick="proceedWeightNormalization()" type="button"><i class="fa fa-check"></i> Process/Update All Data </button>
+                <button class="btn btn-success btn-sm" id="buttonProcess" onclick="proceedWeightNormalization()" type="button"><i class="fa fa-check"></i> Process/Update All Data </button>
+                <p id="pesanKesalahan" style="color:red;font-size:13px;font-weight: bold;">Hi Buddy, may there's something wrong from your divider.<br>
+                    Please check/evaluate again with your matrix value.</p>
             </div>
             <h5 class="m-0 font-weight-bold text-primary">=Normalization Calculation Data=</h5>
         </div>
@@ -380,34 +396,47 @@
                     <tbody>
                         <?php $no = 0;
                         $showData = $this->db->query('select distinct a.employee_id, b.e_name from calc_criteria_employee a inner join employee b on b.id = a.employee_id'); ?>
-                        <?php foreach ($showData->result() as $baris) { ?>
+                        <?php
+                        $divMaxVal_divMaxMinVal = '';
+
+                        foreach ($showData->result() as $baris) { ?>
                             <tr>
                                 <td><?php echo ++$no; ?></td>
                                 <td><?php echo $baris->e_name; ?></td>
                                 <?php $getValue = $this->db->query('select criteria_id,value from calc_criteria_employee where employee_id = "' . $baris->employee_id . '"');
                                 foreach ($getCriteria as $c) { ?>
-                                    <!-- <input type='text' id="employee_id" name="employee_id" value="<?php echo $baris->employee_id; ?>"> -->
-                                    <!-- <input type='text' id="criteria_id" name="criteria_id" value="<?php echo $c->id; ?>"> -->
                                     <?php $query_value = $this->db->query('select value from calc_criteria_employee where criteria_id = "' . $c->id . '" and employee_id="' . $baris->employee_id . '" group by criteria_id')->row() ?>
                                     <?php $queryMax = $this->db->query('select max(value) as max_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
                                     <?php $queryMin = $this->db->query('select min(value) as min_val from calc_criteria_employee where criteria_id = "' . $c->id . '" group by criteria_id')->row() ?>
                                     <?php $maxVal_value = ($queryMax->max_val - $query_value->value); ?>
                                     <?php $maxVal_minVal = ($queryMax->max_val - $queryMin->min_val); ?>
                                     <?php
-                                    $divMaxVal_divMaxMinVal = '';
+
                                     if ($maxVal_minVal == 0) {
                                         $divMaxVal_divMaxMinVal = 'NaN';
                                     } else {
                                         $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
                                     } ?>
                                     <td><?php echo $divMaxVal_divMaxMinVal; ?></td>
+
                                     <!-- <input type='text' id="value" name="value" value="<?php echo $divMaxVal_divMaxMinVal; ?>"> -->
 
                                 <?php } ?>
 
                             </tr>
                         <?php } ?>
-
+                        <?php if ($divMaxVal_divMaxMinVal == 'NaN') { ?>
+                            <script>
+                                alert('There is data that has a divider is 0 or null');
+                                $('#buttonProcess').hide();
+                                $('#pesanKesalahan').show();
+                            </script>
+                        <?php } else { ?>
+                            <script>
+                                $('#buttonProcess').show();
+                                $('#pesanKesalahan').hide();
+                            </script>
+                        <?php } ?>
                     </tbody>
                 </table>
 
@@ -458,8 +487,12 @@
                                     } else {
                                         $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
                                     } ?>
-                                    <td><?php echo ($weight->weight_value * $divMaxVal_divMaxMinVal); ?></td>
-                                <?php } ?>
+                                    <?php if ($maxVal_minVal == 0) { ?>
+                                        <td>NaN</td>
+                                    <?php } else { ?>
+                                        <td><?php echo ($weight->weight_value * $divMaxVal_divMaxMinVal); ?></td>
+                                <?php }
+                                } ?>
 
                             </tr>
                         <?php } ?>

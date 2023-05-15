@@ -297,4 +297,46 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Data  -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">=List Best Employee=</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered " style="font-size:13px" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Employee</th>
+                                    <th>Year</th>
+                                    <th>Certificate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $queryBestEmp = $this->db->query("SELECT a.employee_id, b.e_name, min(a.value) as value_S, a.year from calc_total_weight_normalization a 
+INNER JOIN employee b ON b.id = a.employee_id
+GROUP BY a.year")->result(); ?>
+                                <?php
+                                $no = 0;
+                                $rank = 1;
+                                foreach ($queryBestEmp as $rr) { ?>
+
+                                    <tr>
+                                        <td><?php echo ++$no; ?></td>
+                                        <td><?php echo $rr->e_name; ?></td>
+                                        <td><?php echo $rr->year; ?></td>
+                                        <td><a href="<?php echo base_url('administrator/getCertificate/') . $rr->employee_id; ?>">Get Certificate</a></td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>

@@ -195,72 +195,77 @@
     function saveUpdate() {
         var url;
         url = '<?php echo base_url() ?>administrator/matrixCalculation/update';
+        var num = $('[name="value"]').val();
+        if (num > 5) {
+            alert('Is not allowed if larger than 5');
+        } else {
 
-        swal({
-            title: "Are you sure ?",
-            icon: "warning",
-            buttons: {
-                cancel: true,
-                confirm: true,
-            },
-            html: true
-        }).then((result) => {
-            if (result == true) {
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: $('#formUpdateMatrix').serialize(),
-                    dataType: "JSON",
-                    success: function(resp) {
-                        data = resp.result;
-                        // csrf_hash = resp.csrf['token']
-                        // $('#add-form input[name=' + csrf_name + ']').val(csrf_hash);
-                        if (data['status'] == 'success') {
-                            $('.form-group')
-                                .removeClass('has-error')
-                                .removeClass('has-success')
-                                .find('#text-error')
-                                .remove();
-                            $('#modalUpdateMatrix').modal('hide');
-                            setInterval(() => {
-                                window.location = '';
-                            }, 1500);
-                        } else {
-                            $.each(data['messages'], function(key, value) {
-                                var element = $('#' + key);
-                                element
-                                    .closest('div.form-group')
+            swal({
+                title: "Are you sure ?",
+                icon: "warning",
+                buttons: {
+                    cancel: true,
+                    confirm: true,
+                },
+                html: true
+            }).then((result) => {
+                if (result == true) {
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: $('#formUpdateMatrix').serialize(),
+                        dataType: "JSON",
+                        success: function(resp) {
+                            data = resp.result;
+                            // csrf_hash = resp.csrf['token']
+                            // $('#add-form input[name=' + csrf_name + ']').val(csrf_hash);
+                            if (data['status'] == 'success') {
+                                $('.form-group')
                                     .removeClass('has-error')
-                                    .addClass(
-                                        value.length > 0 ?
-                                        'has-error' :
-                                        'has-success'
-                                    )
+                                    .removeClass('has-success')
                                     .find('#text-error')
                                     .remove();
-                                element.after(value);
+                                $('#modalUpdateMatrix').modal('hide');
+                                setInterval(() => {
+                                    window.location = '';
+                                }, 1500);
+                            } else {
+                                $.each(data['messages'], function(key, value) {
+                                    var element = $('#' + key);
+                                    element
+                                        .closest('div.form-group')
+                                        .removeClass('has-error')
+                                        .addClass(
+                                            value.length > 0 ?
+                                            'has-error' :
+                                            'has-success'
+                                        )
+                                        .find('#text-error')
+                                        .remove();
+                                    element.after(value);
+                                });
+                            }
+                            return swal({
+                                html: true,
+                                timer: 1300,
+                                title: data['msg'],
+                                icon: data['status']
                             });
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            alert('Error adding/updating data');
                         }
-                        return swal({
-                            html: true,
-                            timer: 1300,
-                            title: data['msg'],
-                            icon: data['status']
-                        });
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        alert('Error adding/updating data');
-                    }
-                });
-            } else {
-                return swal({
-                    title: 'Transaksi telah dibatalkan !',
-                    content: true,
-                    timer: 1300,
-                    icon: 'warning'
-                });
-            }
-        });
+                    });
+                } else {
+                    return swal({
+                        title: 'Transaksi telah dibatalkan !',
+                        content: true,
+                        timer: 1300,
+                        icon: 'warning'
+                    });
+                }
+            });
+        }
     }
 </script>
 <style>

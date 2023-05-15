@@ -883,6 +883,7 @@ class Administrator extends CI_Controller
                         $divMaxVal_divMaxMinVal = '';
                         if ($maxVal_minVal == 0) {
                             $divMaxVal_divMaxMinVal = 'NaN';
+                            // $result                 = array('status' => 'error', 'msg' => 'Error, divider is 0 (not allowed)!');
                         } else {
                             $divMaxVal_divMaxMinVal = ($maxVal_value / $maxVal_minVal);
                         }
@@ -915,6 +916,7 @@ class Administrator extends CI_Controller
 
                     $data['employee_id'] = $baris->employee_id;
                     $data['value'] = $baris->sum_val;
+                    $data['year'] = date('Y');
                     $querquery = $this->db->query('select employee_id from calc_total_weight_normalization where employee_id = "' . $baris->employee_id . '"')->num_rows();
                     if (!empty($querquery)) {
                         $this->Model_normalization->updateSum($baris->employee_id,  $data);
@@ -983,18 +985,8 @@ class Administrator extends CI_Controller
                 );
                 echo json_encode(array('result' => $result, 'csrf' => $new_csrf));
                 die;
-            } else if ($param == 'delete') {
-                $decrypt_id = decrypt($id);
-                $this->Model_matrix_calculation->delete($id);
-                echo json_encode(array("status" => 'success', 'msg' => 'Delete Success !'));
-                // $cek_id = $this->B_mou_model->get_by_jenis_id($decrypt_id);
-                // if (!$cek_id) {
-
-                // $this->B_user_log_model->addLog(userLog('Hapus Data', $this->session->userdata('first_name') . ' Melakukan hapus data Jenis Kerja Sama yang memiliki id = ' . $decrypt_id, $this->session->userdata('id')));
-
-                // } else {
-                //     echo json_encode(array("status" => 'error', 'msg' => "Can not delete this item, It's being used !"));
-                // }
+            } else if ($param == 'deleteAllCalculation') {
+                $this->Model_normalization->deleteAllCalculation();
             }
         }
     }
@@ -1108,6 +1100,13 @@ class Administrator extends CI_Controller
             } else if ($param == 'export') {
             }
         }
+    }
+
+    function getCertificate($e_id)
+    {
+        $view['nama'] = $this->session->userdata('full_name');
+        $view['e_id'] = $e_id;
+        $this->load->view('pages/certificate', $view);
     }
 }
 

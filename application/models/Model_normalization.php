@@ -101,6 +101,14 @@ class Model_normalization extends CI_Model
         $this->db->where('employee_id', $id);
         $this->db->delete('calc_normalization');
     }
+
+    function deleteAllCalculation()
+    {
+        $this->db->query('delete from calc_max_weight_normalization');
+        $this->db->query('delete from calc_normalization');
+        $this->db->query('delete from calc_total_weight_normalization');
+        $this->db->query('delete from calc_weight_normalization');
+    }
 }
 
 /* End of file Model_user.php */

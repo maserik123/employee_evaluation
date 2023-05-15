@@ -93,6 +93,7 @@
     </li>
 
     <!-- Nav Item - Charts -->
+
     <li class="nav-item ">
         <a class="nav-link" href="<?php echo base_url('administrator/result') ?>">
             <i class="fas fa-fw fa-check-double"></i>
